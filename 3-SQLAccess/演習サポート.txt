@@ -1,0 +1,122 @@
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+	Embedded Python
+	SQL編　演習サポート
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+=============
+テキストP6
+=============
+import iris
+
+iris.sql.exec("CREATE TABLE Simple.Person (Name VARCHAR(50),Email VARCHAR(50))")
+
+rs=iris.sql.exec("INSERT INTO Simple.Person (Name,Email) VALUES('山田太郎','yamada@mail.com')")
+rs=iris.sql.exec("INSERT INTO Simple.Person (Name,Email) VALUES('杉村花子','sugi@mail.com')")
+
+df=iris.sql.exec("SELECT * FROM Simple.Person").dataframe()
+
+
+=============
+テキストP15
+=============
+
+irispythonコマンドで起動したPythonシェル上で以下実行します。
+
+
+sql="""
+CREATE TABLE Sample.Person (
+Name VARCHAR(50),
+DOB DATE,
+Age INTEGER CALCULATED COMPUTECODE PYTHON {
+     if cols.getfield("DOB") == "":
+         return ""
+     import datetime
+     return ((datetime.date.today().toordinal() - datetime.date(1840,12,31).toordinal() - cols.getfield("DOB")) // 365) }
+ )
+"""
+
+#　CREATE文実行
+rs=iris.sql.exec(sql) 
+
+
+#　INSERT実行 prepare()を利用する場合
+stmt=iris.sql.prepare("INSERT INTO Sample.Person (Name,DOB) VALUES(?,?)")
+#　IRISの内部日付の数値を求める
+dob=iris.system.SQL.TODATE("1999-12-31","YYYY-MM-DD") 
+#　引数を指定してSQL文実行
+rs=stmt.execute("山田太郎",dob)
+
+dob2=iris.system.SQL.TODATE("2003-02-03","YYYY-MM-DD")
+rs=stmt.execute("鈴木花子",dob2)
+
+
+--- 以下メモ ---
+#　INSERT実行 exec()を利用する場合
+rs=iris.sql.exec("insert into Sample.Person(Name,DOB) VALUES('山田太郎',to_date('1999-12-31','YYYY-MM-DD'))")
+rs=iris.sql.exec("insert into Sample.Person(Name,DOB) VALUES('鈴木花子',to_date('2003-02-03','YYYY-MM-DD'))")
+----------------
+
+
+#　SELECT文実行
+iris.sql.exec("SELECT * FROM Sample.Person").dataframe()
+
+
+
+=============
+テキストP19
+=============
+
+#　ストアドプロシージャの追加
+sql="""
+CREATE PROCEDURE ToCSV(filename VARCHAR(50))
+  For Sample.Utils
+  LANGUAGE PYTHON
+  {
+     import iris
+     df=iris.sql.exec("select Name,DOB,Age from Sample.Person").dataframe()
+     df.to_csv(filename,encoding="utf-8")
+  }
+ """
+import iris
+rs=iris.sql.exec("call Sample.ToCSV('c:\\temp\\test.csv')")
+
+
+-- pandas モジュールのインストールを行う場合
+＜Windowsでのインストール方法＞
+>cd c:\InterSystems\IRIS\bin
+>irispip install --target c:\intersystems\iris\mgr\python pandas
+
+※Windows以外は pip コマンドでインストールを行ってください。
+
+
+=============
+テキストP21～
+=============
+
+import iris
+import pandas as pd
+
+def fromCSV(inputfile):
+    df=pd.read_csv(inputfile,encoding="utf-8")
+    sql="INSERT INTO Sample.Person (Name,DOB) VALUES(?,?)"
+    stmt=iris.sql.prepare(sql)
+    for idx,row in df.iterrows():
+        record=list(row)
+        record[1]=iris.system.SQL.TODATE(record[1],"YYYY-MM-DD")
+        stmt.execute(*record)
+
+
+c:\WorkSpace\TryPython\script1.py　に保存したと仮定します。
+
+irispythonコマンドでPythonシェルを起動して、以下実行します。
+（c:\temp\inputtest1.csv に入力ファイルがあると仮定しています）
+
+> c:\intersystems\iris\bin\irispython
+
+>>> import sys
+>>> sys.path+=['C:\WorkSpace\TryPython'] 
+>>> import script1
+>>> script1.fromCSV("c:\\temp\\inputtest1.csv") 
+
+
+

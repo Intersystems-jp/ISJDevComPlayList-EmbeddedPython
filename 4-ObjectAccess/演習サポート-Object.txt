@@ -1,0 +1,191 @@
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+	Embedded Python
+	オブジェクト編　演習サポート
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+○　演習補足資料のページ番号のコピーペースト元です
+
+
+=============
+P10～11 FS.Personのクラス定義
+=============
+
+Class FS.Person Extends %Persistent
+{
+///人の名前
+Property Name As %String;
+Property DOB As %Date;
+Property Age As %Integer;
+}
+
+
+=============
+P12 AgeプロパティとAgeComputation()メソッドの定義
+=============
+
+Property Age As %Integer [ Calculated, SqlComputed ];
+
+ClassMethod AgeComputation(cols As %PropertyHelper) As %Integer [ Language = python ]
+{
+    if cols.getfield("DOB")=="":
+        return ""
+    import datetime
+    today=datetime.date.today().toordinal()
+    iris0=datetime.date(1840,12,31).toordinal()
+    return ((today-iris0-cols.getfield("DOB"))//365)
+}
+
+
+=============
+P14 Pythonシェルへの切り替え
+=============
+
+Do ##class(%SYS.Python).Shell()
+
+
+=============
+P15 インスタンス生成から保存まで
+=============
+
+p=iris.cls("FS.Person")._New()
+p.Name="山田太郎"
+p.DOB=iris.system.SQL.TODATE("1999-12-31","YYYY-MM-DD")
+p.Age
+
+st=p._Save()
+print(st)
+
+
+=============
+P16 INSERT文例
+=============
+
+INSERT INTO FS.Person (Name,DOB) VALUES('鈴木花子',TODATE('2003-02-03','YYYY-MM-DD'))
+
+
+=============
+P19 SQLの実行（イテレータ）
+=============
+
+rs=iris.sql.exec("SELECT * FROM FS.Person")
+print(rs.__next__())
+
+
+rs=iris.sql.exec("SELECT * FROM FS.Person")
+while True:
+	try:
+		print(rs.__next__())
+	except:
+		break
+
+
+
+=============
+P20 SQLの実行（enumerate()関数）
+=============
+
+rs=iris.sql.exec("SELECT * FROM FS.Person")
+for cn,reco in enumerate(rs):
+	print(f"名前:{reco[3]}、誕生日：{iris.system.SQL.TOCHAR(reco[2],'YYYY-MM-DD')}")
+
+
+
+statement=iris.sql.prepare("SELECT * FROM FS.Person WHERE ID=?")
+rs=statement.execute(1)
+for cn,reco in enumerate(rs):
+	print(f"名前:{reco[3]}、誕生日：{iris.system.SQL.TOCHAR(reco[2],'YYYY-MM-DD')}")
+
+rs=statement.execute(2)
+for cn,reco in enumerate(rs):
+	print(f"名前:{reco[3]}、誕生日：{iris.system.SQL.TOCHAR(reco[2],'YYYY-MM-DD')}")
+
+
+
+=============
+P21 インスタンスメソッド：Print()
+=============
+
+Method Print() [ Language = python ]
+{
+    print(f"名前は {self.Name}、年齢は{self.Age}　です")
+}
+
+
+実行
+p=iris.cls("FS.Person")._OpenId(1)
+p.Print()
+
+
+=============
+P23 クラスメソッド：CreateEmail()
+=============
+
+ClassMethod CreateEmail(uid As %String) As %String [ Language = python, SqlProc ]
+{
+    if uid==None:
+        return ""
+    return uid+"@mail.com"
+}
+
+＜実行＞
+iris.cls("FS.Person").CreateEmail("abc")
+
+
+
+○ P24 ストアドプロシージャとしての実行
+
+rs=iris.sql.exec("SELECT FS.Person_CreateEmail('test')")
+rs.__next__()
+
+
+＜CREATE FUNCTIONで置き換えたときの例＞
+
+CREATE FUNCTION CreateEmail2(uid VARCHAR(50))
+ RETURNS VARCHAR(50)
+ FOR FS.ProcUtils
+ LANGUAGE PYTHON
+{
+    if uid==None:
+        return ""
+    return uid+"@mail.com"
+}
+
+
+
+========
+P25 エラー発生時の動作
+========
+
+try:
+	rs=iris.sql.exec("SELECT * FROM FS.Person22")
+except Exception as e:
+	print(f"エラー：{str(e)}")
+
+----
+
+try:
+	p=iris.cls("FS.Person22")._New()
+except Exception as e:
+	print(f"エラー：{str(e)}")
+
+
+----
+
+○ P26 エラーステータスの確認
+
+p=iris.cls("FS.Person")._New()
+p.DOB="これは文字列"
+st=p._Save()
+iris.check_status(st)
+
+---
+
+try:
+	p=iris.cls("FS.Person")._New()
+	p.DOB="これは文字列"
+	st=p._Save()
+	iris.check_status(st)
+except RuntimeError as ex:
+	print(str(ex))
+
+

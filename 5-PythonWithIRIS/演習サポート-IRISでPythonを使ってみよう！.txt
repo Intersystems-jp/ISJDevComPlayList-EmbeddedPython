@@ -1,0 +1,658 @@
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+	Embedded Python
+   IRISでPythonを使ってみよう！
+	　演習サポート
+◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆◆
+
+
+=============
+テキスト P3 Pythonシェルの起動
+=============
+
+do ##class(%SYS.Python).Shell()
+
+
+=============
+テキスト P4 datetime
+=============
+
+#datetime.now() ：本日の日付、現在時刻
+import datetime
+datetime.datetime.now()
+
+
+#dateオブジェクトのコンストラクタを利用してdateオブジェクト生成
+dt=datetime.date(2021,4,12)
+dt.month
+
+
+#お正月まであと何日？
+oshogatu=datetime.date(2023,1,1)
+today=datetime.date.today()
+td=oshogatu-today
+td.days
+
+
+#10日前は何日？
+td_10d=datetime.timedelta(days=10)
+today-td_10d
+
+
+#本日の経過日数は？
+today.toordinal()
+
+
+=============
+テキスト P5 datetime
+経過日数を確認する
+=============
+
+
+-- 以下Pythoシェルでの実行例 --
+import datetime
+today=datetime.datetime.now()
+
+today.toordinal()
+
+iris0day=datetime.date(1840,12,31)
+iris0day.toordinal()
+
+today.toordinal()-iris0day.toordinal()
+
+
+-- 以下IRISターミナルでの実行例(2022年5月6日の内部日付を表示) --
+write $ZDATEH(20220506,8)
+
+
+=============
+テキスト P6 IRISの内部日付の変換に便利なメソッド
+=============
+
+#表示形式から内部形式
+dob=iris.system.SQL.TODATE("1999-12-31","YYYY-MM-DD")
+#内部形式から表示形式
+irisdob=iris.system.SQL.TOCHAR(58073,"YYYY-MM-DD")
+
+
+=============
+テキスト P7 irispipの例
+=============
+
+＜Windowsのコマンドプロンプトでの実行例＞
+cd c:\InterSystems\IRIS\bin
+irispip install --target c:\intersystems\iris\mgr\python requests
+irispip install --target c:\intersystems\iris\mgr\python beautifulsoup4
+
+
+=============
+テキスト P8 Pythonのモジュールを使ってスクレイピング　実行
+=============
+
+-- 以下IRISターミナルで実行 --
+
+do ##class(%SYS.Python).Shell()
+
+
+-- 以下Pythonシェルで実行 --
+
+import requests
+from bs4 import BeautifulSoup
+response=requests.get('https://jp.community.intersystems.com/node/517211')
+soup=BeautifulSoup(response.text,'html.parser')
+title=soup.find('title').get_text()
+title
+
+
+=============
+テキスト P9 PythonスクリプトファイルをIRISから呼び出す（1）
+Python シェルから実行
+=============
+
+-- scraping.py --
+
+import requests
+from bs4 import BeautifulSoup
+
+def gettitle(url):
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    title=soup.find('title').get_text()
+    return title
+
+
+-- 以下Pythonシェルから実行 --
+
+import sys
+sys.path+=['c:\workspace\TryIRIS']
+import scraping
+scraping.gettitle('https://jp.community.intersystems.com/node/517211')
+
+
+=============
+テキスト P10 PythonスクリプトファイルをIRISから呼び出す(2)
+=============
+
+-- IRISターミナルから実行 --
+
+set sys=##class(%SYS.Python).Import("sys")
+do sys.path.append("c:\WorkSpace\TryIRIS")
+set scraping=##class(%SYS.Python).Import("scraping")
+write scraping.gettitle("https://jp.community.intersystems.com/node/517211")
+
+
+
+=============
+テキスト P11 PythonスクリプトファイルをIRISから呼び出す(3)
+（戻り値がインスタンスの場合）
+=============
+
+-- 以下 scraping.pyに追加 --
+
+def gettitle2(url):
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    title=soup.find('title').get_text()
+    return History(url,title)
+
+class History:
+    url=None
+    title=None
+
+    def __init__(self,url,title):
+        self.url=url
+        self.title=title
+
+    def print(self):
+        print(f"URL:{self.url} のタイトルは {self.title}です")
+
+
+-- 以下IRISターミナルから実行 --
+
+set o=scraping.gettitle2("https://jp.community.intersystems.com/node/517211")
+write o.url
+write o.title
+do o.print()
+
+
+=============
+テキスト P13 irispythonコマンドでPythonシェルを起動する方法
+=============
+-- 以下コマンドプロンプトで実行 --
+
+cd intersystems\iris\bin
+irispython
+
+
+=============
+テキスト P15 Pythonの組み込み関数（builtins）を使う
+=============
+
+set builtins=##class(%SYS.Python).Import("builtins")
+do builtins.print("Hello World!")
+
+set list=builtins.list()
+do list.append("これは1つ目")
+do list.append("これは2つ目")
+do builtins.print(list)
+ 
+write builtins.len(list)
+
+
+=============
+テキスト P16 builtins関数 list() - ObjectScriptでの操作
+=============
+
+set builtins=##class(%SYS.Python).Import("builtins")
+set list=builtins.list()
+do list.append("あ")
+do list.append("い")
+do list.insert(2,"う")
+
+do builtins.print(list)
+
+write list."__getitem__"(1)
+do list.pop(1)
+do builtins.print(list)
+ 
+do list.clear()
+do builtins.print(list)
+
+
+=============
+テキスト P17 builtins関数 dict() - ObjectScriptでの操作
+=============
+
+set builtins=##class(%SYS.Python).Import("builtins")
+set dict=builtins.dict()
+do dict.setdefault("jp","Japanese")
+do dict.setdefault("en","English")
+do dict.setdefault("fr","Franch")
+do builtins.print(dict)
+ 
+write dict.get("en")
+
+do dict.pop("en")
+do builtins.print(dict)
+ 
+do dict.clear()
+do builtins.print(dict)
+
+
+=============
+テキスト P18 リストの要素数を調べる
+=============
+
+set builtins=##class(%SYS.Python).Import("builtins")
+set list=builtins.list()
+do list.append("あいうえお")
+do list.append("かきくけこ")
+write builtins.len(list)
+
+for i=0:1:(builtins.len(list)-1) { write list."__getitem__"(i),!}
+
+
+=============
+テキスト P23 ObjectScriptメソッドの作成と実行
+=============
+
+Class FS.Utils
+{
+
+ClassMethod getTitle(url As %String) As %String
+{
+    // スクリプトファイルがあるパスをsys.pathに追加します
+    set sys=##class(%SYS.Python).Import("sys")
+    do sys.path.append("c:\WorkSpace\TryIRIS")
+    // スクリプトファイルをインポートします。
+    set scraping=##class(%SYS.Python).Import("scraping")
+    set title=scraping.gettitle(url)
+    return title
+}
+}
+
+
+-- 以下IRISターミナルからの実行 --
+
+write ##class(FS.Utils).getTitle("https://jp.community.intersystems.com/node/517211")
+
+
+=============
+テキスト P24 Pythonメソッドの作成と実行
+language=pythonの指定
+=============
+
+ClassMethod scraping(url As %String) As %String [ Language = python ]
+{
+    import requests
+    from bs4 import BeautifulSoup
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    title=soup.find('title').get_text()
+    return title
+}
+
+-- 以下IRISターミナルからの実行 --
+
+write ##class(FS.Utils).scraping("https://jp.community.intersystems.com/node/517211")
+
+
+=============
+テキスト P25 URLをパースしてグローバルに登録する
+=============
+
+ClassMethod scraping(url As %String) As %String [ Language = python ]
+{
+    import requests
+    from bs4 import BeautifulSoup
+    import urllib.parse as parser
+    import iris
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    title=soup.find('title').get_text()
+    path=parser.urlparse(url).path
+    glo=iris.gref("^DEVCOM")
+    glo[path]=title
+    return title
+}
+
+-- 以下IRISターミナルからの実行 --
+
+write ##class(FS.Utils).scraping("https://jp.community.intersystems.com/node/517211")
+
+zwrite ^DEVCOM
+
+
+=============
+テキスト P26 グローバルの設定を行うObjectScriptメソッドの作成
+＋Pythonからメソッドを呼び出す
+=============
+
+ClassMethod scraping(url As %String) As %String [ Language = python ]
+{
+    import requests
+    from bs4 import BeautifulSoup
+    import urllib.parse as parser
+    import iris
+    response=requests.get(url)
+    soup=BeautifulSoup(response.text,'html.parser')
+    title=soup.find('title').get_text()
+    path=parser.urlparse(url).path
+    #glo=iris.gref("^DEVCOM")
+    #glo[path]=title
+    iris.cls("FS.Utils").setGlo(path,title)
+    return title
+}
+
+ClassMethod setGlo(path As %String, title As %String)
+{
+    set ^DEVCOM(path)=title
+}
+
+
+-- 以下IRISターミナルからの実行 --
+
+kill ^DEVCOM   //前回設定したデータを消去
+write ##class(FS.Utils).scraping("https://jp.community.intersystems.com/node/517211")
+
+
+=============
+テキスト P27 ObjectScriptメソッドに可変長引数を渡す場合の書き方
+=============
+
+ClassMethod Kahen(input... As %String)
+{
+	zwrite input
+}
+
+-- 以下Pythonシェルで実行 --
+
+import iris
+list=["これは","可変個の引数です","3つあります"]
+iris.cls("FS.Utils").Kahen(*list)
+
+iris.cls("FS.Utils").Kahen("a","b","c","d")
+
+
+=============
+テキスト P28 PythonのTrue／False／None
+ObjectScriptで操作する方法
+=============
+
+ClassMethod TrueFalse(in As %Integer) As %SYS.Python
+{
+	if in=1 {
+		return ##class(%SYS.Python).True()
+	}
+	else {
+		return ##class(%SYS.Python).False()
+	}
+}
+
+ClassMethod TFTest(input As %Integer) [ Language = python ]
+{
+    import iris
+    ret=iris.cls("FS.Utils").TrueFalse(input)
+    if ret==True:
+        print("True返ってきた")
+    else:
+        print("Flase返ってきた")
+}
+
+
+-- 以下IRISターミナルで実行--
+do ##class(FS.Utils).TFTest(99)
+do ##class(FS.Utils).TFTest(1)
+
+
+=============
+テキスト P30 以降
+Pythonでエラーが発生した場合
+（FS.Utilsクラスにサンプルメソッドがあります）
+=============
+
+ClassMethod errtest1(a As %Integer, b As %Integer) As %Integer [ Language = python ]
+{
+    result=a/b
+    return result
+}
+
+-- 以下IRISターミナルで実行 --
+write ##class(FS.Utils).errtest1(1,0)
+
+
+
+-- 以下、test1.py の関数 --
+
+def err1(a,b):
+    result=a/b
+    return result
+
+-- 以下IRISターミナルで実行 --
+set sys=##class(%SYS.Python).Import("sys")
+do sys.path.append("c:\WorkSpace\TryIRIS")
+set test1=##class(%SYS.Python).Import("test1")
+write test1.err1(1,0)
+
+
+
+=============
+テキスト P32 ご参考：%Statusのエラーはどうなるでしょう
+(FS.Utilsクラスのメソッド)
+=============
+
+ClassMethod statustest() [ Language = python ]
+{
+    import iris
+    try:
+        a=iris.cls("FS.Person")._New()
+        a.DOB="ThisIsError"
+        st=a._Save()
+        iris.check_status(st)
+    except RuntimeError as ex:
+        print("pythonのエクセプション！")
+        print(str(repr(ex)))
+        raise
+}
+
+
+-- 以下IRISターミナルで実行 --
+
+do ##class(FS.Utils).statustest()
+
+
+=============
+テキスト P33 ご参考：SQL実行時のエラーはどうなるでしょう
+(test1.pyの関数
+=============
+
+def sqlerr():
+    import iris
+    import irisbuiltins
+    try:
+        sql="select * from Training.Person"
+        rset=iris.sql.exec(sql)
+        for key,val in enumerate(rset):
+            print(val)
+
+
+-- 以下IRISターミナルで実行　--
+
+//システムエラーが発生した場合に$ZE特殊変数に情報が設定されます
+write $ZE
+
+// Pythonシェル起動
+do ##class(%SYS.Python).Shell()
+
+## 以下Pythonシェルで実行
+import sys
+sys.path+=["c:\WorkSpace\TryIRIS"]
+import test1
+test1.sqlerr()
+
+quit()
+
+// 以下IRISターミナルで実行
+write $ZE
+
+
+=============
+テキスト P36 Python側の選択肢：エラーの対応方法
+1. 戻り値を使ってエラーだったことを報告する例 （*.py） 
+=============
+
+def err2(a,b):
+    try:
+        if b==1:
+            modori="1で割っても答えは同じです"
+            return modori
+        print(f"割り算の答えは＝{a/b}")
+        modori="OK"
+        return modori
+    except ZeroDivisionError as ex:
+        modori=str(repr(ex))
+        print(modori)
+        return modori
+
+
+-- 以下IRISターミナルで実行 --
+
+set sys=##class(%SYS.Python).Import("sys")
+do sys.path.append("C:\WorkSpace\TryIRIS")
+set errtest=##class(%SYS.Python).Import("test1")
+set ret=errtest.err2(2,2)
+ 
+write ret
+
+set ret=errtest.err2(2,1)
+write ret
+
+set ret=errtest.err2(2,0)
+write ret
+
+
+=============
+テキスト P37 Python側の選択肢：エラーの対応方法
+1. 戻り値を使ってエラーだったことを報告する例 （language=python） 
+（FS.Utilsクラスのメソッドを用意してテスト）
+=============
+
+ClassMethod errtest2(a As %Integer, b As %Integer) As %Integer [ Language = python ]
+{
+    try:
+        if b==1:
+            modori="1で割っても答えは同じです"
+            return modori
+        print(f"割り算の答えは＝{a/b}")
+        modori="OK"
+        return modori
+    except ZeroDivisionError as ex:
+        modori=str(repr(ex))
+        print(modori)
+        return modori
+}
+
+-- 以下IRISターミナルで実行 --
+
+set modori=##class(FS.Utils).errtest2(2,2)
+
+write modori
+set modori=##class(FS.Utils).errtest2(2,1)
+write modori
+
+set modori=##class(FS.Utils).errtest2(2,0)
+write modori
+
+
+=============
+テキスト P38 Python側の選択肢：エラーの対応方法
+1. 戻り値を使ってエラーだったことを報告する例 （%Statusを戻す場合）
+（FS.Utilsクラスのメソッドを用意してテスト）
+=============
+
+ClassMethod errtest3(a As %Integer, b As %Integer) As %Status [ Language = python ]
+{
+    import iris
+    try:
+        print(a/b)
+        ret=1
+    except Exception as ex:
+        moji="エラーが発生しました！"+str(repr(ex))
+        ret=iris.system.Status.Error(5001,moji)
+    return ret
+}
+
+
+-- 以下IRISターミナルで実行 --
+set status=##class(FS.Utils).errtest3(1,0)
+write $system.Status.GetErrorText(status)
+
+set status=##class(FS.Utils).errtest3(1,1)
+write status
+
+
+
+=============
+テキスト P39 Python側の選択肢：エラーの対応方法
+2.try: except: を使う＋raise でそのままIRISに例外を戻す
+（test1.pyの関数とFS.Utilsのクラスメソッドでテスト）
+=============
+
+-- 以下 test1.py の関数 --
+def err3(a,b):
+    try:
+        ret=a/b
+        print(ret)
+    except:
+        raise
+
+
+-- 以下 FS.Utilsクラスのメソッド --
+
+ClassMethod errtest4() As %Status
+{
+    #dim ex As %Exception.AbstractException
+    try {
+        set sys=##class(%SYS.Python).Import("sys")
+        do sys.path.append("C:\WorkSpace\TryIRIS")
+        set errtest=##class(%SYS.Python).Import("test1")
+        do errtest.err3(1,0)
+    }
+    catch ex {
+        write "エラーが発生しました：",ex.DisplayString(),!
+        //例外から%Statusに変換
+        set st=ex.AsStatus()
+        //例外からSQLCODEとメッセージを取得
+        set SQLCODE=ex.AsSQLCODE()
+        set SQLMessage=ex.AsSQLMessage()
+    }
+}
+
+-- 以下IRISターミナルで実行 --
+do ##class(FS.Utils).errtest4()
+
+
+=============
+テキスト P43 グローバル変数の$order()をPythonで行うには？
+https://jp.community.intersystems.com/node/511476
+=============
+
+-- 以下Pythonシェルで実行 --
+
+import iris
+glo=iris.gref("^Relation")
+glo["Eren"]="主人公エレン"
+glo["Eren","Armin"]=""
+glo["Eren","Mikasa"]=""
+glo["Eren","Zeke"]=""
+glo["Armin"]="エレンの幼馴染（アルミン）"
+glo["Mikasa"]="エレンの幼馴染（ミカサ）"
+glo["Zeke"]="エレンの異母兄弟"
+
+
+sub=""
+while True:
+	sub=glo.order(["Eren",sub])
+	if (sub==None):
+		break
+	print(sub)
+
