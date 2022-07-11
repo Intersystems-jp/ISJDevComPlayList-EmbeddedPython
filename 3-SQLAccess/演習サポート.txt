@@ -78,6 +78,7 @@ CREATE PROCEDURE ToCSV(filename VARCHAR(50))
   }
  """
 import iris
+rs=iris.sql.exec(sql)
 rs=iris.sql.exec("call Sample.ToCSV('c:\\temp\\test.csv')")
 
 
