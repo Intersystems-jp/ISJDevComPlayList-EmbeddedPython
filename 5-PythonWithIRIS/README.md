@@ -1,4 +1,4 @@
-# Embedded Pythonでデータベースプログラミング：アクセス編
+# IRISでPythonを使ってみよう！
 
 [インターシステムズ開発者コミュニティのYouTube](https://www.youtube.com/channel/UC-fNl739w4X0K6_vkcE76GQ)で公開中のプレイリスト：準備中[5-IRISでPythonを使ってみよう！]() に沿った以下資料が含まれています。
 
