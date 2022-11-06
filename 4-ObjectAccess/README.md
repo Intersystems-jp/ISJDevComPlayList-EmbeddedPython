@@ -14,7 +14,7 @@
 - [1-Embedded Python概要編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxBowDUZQfqL3bvaXpkCMPW2)
 - [2-Embedded Python利用前の準備](https://www.youtube.com/playlist?list=PLzSN_5VbNaxCqdcK4yiFwzXe041RBtD6V)
 - [3-Embedded Pythonでデータベースプログラミング：SQLアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxDAPjSBe5F-uGbGkoJqcerL)
-- 準備中[5-IRISでPythonを使ってみよう！]()
+- [5-IRISでPythonを使ってみよう！](https://www.youtube.com/playlist?list=PLzSN_5VbNaxBLXlC9oCgwPtxBilT8tJ96)
 
 ## 開発者コミュニティ
 - [Embedded Pythonタグ](https://jp.community.intersystems.com/tags/embedded-python)
