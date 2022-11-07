@@ -1,6 +1,6 @@
 # Embedded Pythonでデータベースプログラミング：SQLアクセス編
 
-[インターシステムズ開発者コミュニティのYouTube](https://www.youtube.com/channel/UC-fNl739w4X0K6_vkcE76GQ)で公開中のプレイリスト：[3-Embedded Pythonでデータベースプログラミング：SQLアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxDAPjSBe5F-uGbGkoJqcerL) に沿った以下資料が含まれています。
+[インターシステムズ開発者コミュニティのYouTube](https://www.youtube.com/channel/UC-fNl739w4X0K6_vkcE76GQ/playlists)で公開中のプレイリスト：[3-Embedded Pythonでデータベースプログラミング：SQLアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxDAPjSBe5F-uGbGkoJqcerL) に沿った以下資料が含まれています。
 
 ビデオに沿って演習を実施する際ご利用ください。
 
