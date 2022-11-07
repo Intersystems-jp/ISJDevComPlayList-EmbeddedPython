@@ -1,11 +1,11 @@
 # Embedded Python セルフラーニングビデオ用資料
 
-[インターシステムズ開発者コミュニティのYouTube](https://www.youtube.com/channel/UC-fNl739w4X0K6_vkcE76GQ)で公開中のプレイリストに沿った資料が含まれています。
+開発者コミュニティでご紹介している[【はじめてのInterSystems IRIS】Embedded Python セルフラーニングビデオシリーズ公開！](https://jp.community.intersystems.com/node/520751)のプレイリストに沿ったサンプル・資料が含まれています。
 
 各フォルダに対応するプレイリストは以下の通りです。
 
 - [3-SQLAccess] : [3-Embedded Pythonでデータベースプログラミング：SQLアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxDAPjSBe5F-uGbGkoJqcerL) 
-- [4-ObjectAccess] : [4-Embedded Pythonでデータベースプログラミング：Objectアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxBnEb5rq-676b1l7Ym6INjL)
+- [4-ObjectAccess] : [4-Embedded Pythonでデータベースプログラミング：オブジェクトアクセス編](https://www.youtube.com/playlist?list=PLzSN_5VbNaxBnEb5rq-676b1l7Ym6INjL)
 - [5-PythonWithIRIS] : [5-IRISでPythonを使ってみよう！](https://www.youtube.com/playlist?list=PLzSN_5VbNaxBLXlC9oCgwPtxBilT8tJ96)
 
 
