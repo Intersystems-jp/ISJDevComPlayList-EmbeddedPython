@@ -473,7 +473,13 @@ def sqlerr():
         rset=iris.sql.exec(sql)
         for key,val in enumerate(rset):
             print(val)
-
+            
+    except irisbuiltins.SQLError as ex:
+        print(str(repr(ex)))
+        print(ex.sqlcode)
+        print(ex.message)
+        print(ex.statement)
+        raise
 
 -- 以下IRISターミナルで実行　--
 
