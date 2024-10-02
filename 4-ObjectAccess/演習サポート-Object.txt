@@ -68,13 +68,13 @@ P19 SQLの実行（イテレータ）
 =============
 
 rs=iris.sql.exec("SELECT * FROM FS.Person")
-print(rs.__next__())
+print(next(rs))
 
 
 rs=iris.sql.exec("SELECT * FROM FS.Person")
 while True:
 	try:
-		print(rs.__next__())
+		print(next(rs))
 	except:
 		break
 
@@ -135,7 +135,7 @@ iris.cls("FS.Person").CreateEmail("abc")
 ○ P24 ストアドプロシージャとしての実行
 
 rs=iris.sql.exec("SELECT FS.Person_CreateEmail('test')")
-rs.__next__()
+next(rs)
 
 
 ＜CREATE FUNCTIONで置き換えたときの例＞
